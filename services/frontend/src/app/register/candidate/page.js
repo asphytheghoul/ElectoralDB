@@ -13,11 +13,9 @@ export default function Registration() {
     gender: '',
     dob: '',
     age: '',
-    state: '',
-    phoneNumber: '',
-    constituencyName: '',
-    pollingBoothId: '',
-    voterId: '',
+    phone: '',
+    constituency: '',
+    candidateId: '',
   });
 
   const handleChange = (e) => {
@@ -196,20 +194,6 @@ export default function Registration() {
 
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="aadharId">
-            State
-          </label>
-          <input
-            type="text"
-            id="state"
-            name="state"
-            value={formData.state}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="aadharId">
             Phone Number
           </label>
           <input
@@ -227,7 +211,7 @@ export default function Registration() {
             Constituency Name
           </label>
           <input
-            type="text"
+            type="number"
             id="constituency"
             name="constituency"
             value={formData.constituency}
@@ -238,31 +222,18 @@ export default function Registration() {
 
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="aadharId">
-            Polling Booth ID
+            Candidate ID
           </label>
           <input
             type="number"
-            id="pollingid"
-            name="pollingid"
-            value={formData.pollingid}
+            id="candidateId"
+            name="candidateId"
+            value={formData.candidateId}
             onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="aadharId">
-            Voter ID
-          </label>
-          <input
-            type="number"
-            id="voterid"
-            name="voterid"
-            value={formData.voterid}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
         
         <div className="mb-4">
         <Link legacyBehavior href="/success">
