@@ -26,10 +26,12 @@ const Home = () => {
 
   return (
     <div className="flex justify-between p-2">
-    <div className="flex items-center">
+    <Link legacyBehavior href="/">
+    <div className="flex items-center cursor-pointer">
       <Image src="/logo.png" alt="Logo" width={125} height={125} />
       <h1 className="text-2xl ml-2 pl-4 ">ELECTORAL DB</h1>
     </div>
+    </Link>
     <nav className="ml-64 flex items-center">
       <div className="dropdown">
         <a
@@ -109,7 +111,9 @@ const Home = () => {
       </div>
     </nav>
     <div className="ml-auto pt-8">
+    <Link legacyBehavior href="/loginuser">
       <button className="bg-black text-white p-4 mr-4 rounded-full">Login / Register</button>
+      </Link>
     </div>
   </div>
         );
