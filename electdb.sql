@@ -10,6 +10,7 @@ alter table constituency add state varchar(30);
 create table voter ( aadhar_id int unique, first_name varchar(30) NOT NULL, last_name varchar(30) NOT NULL, middle_name varchar(30) default NULL, gender char(6) NOT NULL, dob date NOT NULL, age int, state varchar(30) NOT NULL, phone_no int NOT NULL, constituency_name varchar(30), foreign key (constituency_name) references constituency(constituency_name), poll_booth_id int NOT NULL, foreign key (poll_booth_id) references poll_booth(poll_booth_id), voter_id varchar(20) primary key);
 create table login (aadhar_id int unique primary key, password varchar(200) NOT NULL, role varchar(20), party_name char(25));
 
+
 delimiter //
 create trigger set_voter_id before insert on voter for each row begin set NEW.voter_id = CONCAT(NEW.aadhar_id,NEW.poll_booth_id); end// 
 delimiter ;
@@ -63,8 +64,6 @@ alter table official add foreign key (higher_rank_id) references official(offici
 
 create table party(party_name char(25) primary key, party_symbol char(10) unique, president char(30), party_funds int, headquarters char(20), seats_won int, party_leader varchar(20));
 
-create table campaign(campaign_id int primary key, expected_crowd int, cons_loc varchar(30), campaign_date date, party_name char(25), foreign key (cons_loc) references constituency(constituency_name), foreign key (party_name) references party(party_name));
-
 create table candidate(aadhar_id int unique, first_name varchar(30) NOT NULL, last_name varchar(30) NOT NULL, middle_name varchar(30) default NULL, gender char(6) NOT NULL, dob date NOT NULL, age int, phone_no int NOT NULL,cons_fight varchar(30), candidate_id varchar(20) primary key, foreign key (cons_fight) references constituency(constituency_name));
 
 
@@ -106,17 +105,17 @@ alter table constituency add column election_id int, add foreign key(election_id
 alter table constituency add column current_mla varchar(20) unique, add foreign key (current_mla) references candidate(candidate_id);
 
 alter table voter modify phone_no varchar(10);
-alter table voter modify aadhar_id varchar(12);
+alter table voter modify aadhar_id varchar(5);
 alter table candidate modify phone_no varchar(10);
-alter table candidate modify aadhar_id varchar(12);
+alter table candidate modify aadhar_id varchar(5);
 alter table official modify phone_no varchar(10);
-alter table official modify aadhar_id varchar(12);
+alter table official modify aadhar_id varchar(5);
 
 insert into constituency(constituency_id,constituency_name,state) values(1,'Bangalore Urban','Karnataka') ;
 insert into constituency(constituency_id,constituency_name,state) values(2,'Bangalore Rural','Karnataka');
 insert into constituency(constituency_id,constituency_name,state) values(3,'Belagavi','Karnataka'); 
 insert into constituency(constituency_id,constituency_name,state) values(4,'Mandya','Karnataka'); 
-insert into poll_booth(poll_booth_id,poll_booth_address,evm_vvpat_no,constituency_id) values(1,'Indiranagar',1,1); 
+insert into poll_booth(poll_booth_id,poll_booth_address,evm_vvpat_no,constituency_id) values(1,'Indiranagar',1,1);
 insert into poll_booth(poll_booth_id,poll_booth_address,evm_vvpat_no,constituency_id) values(2,'K R Pura',12,1); 
 insert into poll_booth(poll_booth_id,poll_booth_address,evm_vvpat_no,constituency_id) values(3,'Jaya Nagar',25,1); 
 
@@ -206,3 +205,21 @@ INSERT INTO official (aadhar_id, first_name, last_name, middle_name, gender, dob
 ('30180', 'Rudra', 'Rao', 'Chadha', 'Male', '1989-08-25', '4321098765', 'Belagavi', 6, 'Poll Booth Worker','45678off'),
 ('41292', 'Aarya', 'Menon', 'Sengupta', 'Female', '1974-04-03', '3210987654', 'Mandya', 8, 'Poll Booth Worker','67890off');
 
+alter table candidate add constraint uniquecandcons unique (cons_fight,party_rep);
+
+delimiter //
+create procedure getconsinfo(in input_voter_id varchar(20)) begin select c.constituency_name, c.state, c.voter_count, concat(coalesce(cand.first_name,''),' ',coalesce(cand.middle_name,''),' ',coalesce(cand.last_name,'')) as candidate_name, cand.age,p.party_name,p.party_symbol from constituency c left join candidate cand on cand.cons_fight = c.constituency_name left join party p on cand.party_rep = p.party_name where cand.cons_fight in (select constituency_name from voter where voter_id = input_voter_id); end//
+delimiter ;
+
+delimiter //
+create function malecount(cname varchar(30)) returns int deterministic begin declare male_count int; select sum(case when gender = 'Male' then 1 else 0 end) into male_count from voter where constituency_name = cname; return male_count; end//
+
+create function femalecount(cname varchar(30)) returns int deterministic begin declare female_count int; select sum(case when gender = 'Female' then 1 else 0 end) into female_count from voter where constituency_name = cname; return female_count; end//
+
+create procedure getconsdets() begin select c.constituency_name, malecount(c.constituency_name) as male_count, femalecount(c.constituency_name) AS female_count, count(distinct pb.poll_booth_id) as poll_booth_count from constituency c left join poll_booth pb on c.constituency_id = pb.constituency_id group by c.constituency_name; end//
+delimiter ;
+
+alter table constituency drop constraint constituency_ibfk_2;
+
+alter table constituency drop column current_mla;
+alter table party drop column party_leader;
