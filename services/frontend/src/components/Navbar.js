@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import Link from 'next/link';
 
-const Home = () => {
+const Home = ({user}) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
 
@@ -51,7 +51,7 @@ const Home = () => {
           </div>
         )}
       </div>
-
+        
       <div className="dropdown">
         <a
           href="#"
@@ -63,14 +63,13 @@ const Home = () => {
         {showDropdown && selectedOption === 'candidates' && (
           <div className="dropdown-content">
             {options.candidates.map((item, index) => (
-              <Link legacyBehavior href="/register/candidate/" key={index}>
+              <Link legacyBehavior href={item === 'Candidate Information' ? '/information/candidate' : `/register/candidate/`} key={index}>
                 {item}
               </Link>
             ))}
           </div>
         )}
       </div>
-
       <div className="dropdown">
         <a
           href="#"
@@ -89,7 +88,6 @@ const Home = () => {
           </div>
         )}
       </div>
-
       <div className="dropdown">
         <a
           href="#"
@@ -112,7 +110,7 @@ const Home = () => {
     </nav>
     <div className="ml-auto pt-8">
     <Link legacyBehavior href="/loginuser">
-      <button className="bg-black text-white p-4 mr-4 rounded-full">Login / Register</button>
+      <button className="bg-black text-white p-4 mr-4 rounded-full">{user ? user.aadharId : 'Login/Register'}</button>
       </Link>
     </div>
   </div>

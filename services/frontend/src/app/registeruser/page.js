@@ -82,10 +82,23 @@ return (
             Password
           </label>
           <input
-            type="text"
+            type="password"
             id="password"
             name="password"
             value={formData.password}
+            onChange={handleChange}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">
+            Party Name
+          </label>
+          <input
+            type="text"
+            id="partyName"
+            name="partyName"
+            value={formData.partyName}
             onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
@@ -100,7 +113,7 @@ return (
           </button>
         </div>
       </form>
-      <h2 className="text-black text-xl mb-4">
+      <h2 className="text-black text-xl mb-4 pb-32">
   Already have an account? Click 
   <Link legacyBehavior href='/loginuser'>
     <span style={{ color: 'red', fontWeight: 'bold' ,'cursor':'pointer'}}> here </span>

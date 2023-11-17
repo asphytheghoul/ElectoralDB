@@ -2,6 +2,8 @@
 import Head from 'next/head';
 import Navbar from "../../../components/Navbar"
 import React, { useState } from 'react';
+import { ToastContainer,toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Link from 'next/link';
 
 export default function Registration() {
@@ -25,10 +27,25 @@ export default function Registration() {
       [name]: value,
     });
   };
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Add your form submission logic here
-    console.log(formData);
+  const handleSubmit = async(e) => {
+    e.preventDefault();    
+    try {
+      const response = await fetch('http://localhost:8000/insertCandidate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Something went wrong');
+      }
+
+      toast.success('Successfully registered candidate');
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -126,71 +143,17 @@ export default function Registration() {
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="dob">
                 Date of Birth (DD-MM-YY)
             </label>
-            <div className="grid grid-cols-3 gap-2">
-                <div>
-                <select
-                    id="day"
-                    name="day"
-                    value={formData.day}
-                    onChange={handleChange}
-                    className="block w-full shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                >
-                    <option value="">Day</option>
-                    {Array.from({ length: 31 }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                        {i + 1}
-                    </option>
-                    ))}
-                </select>
-                </div>
-                <div>
-                <select
-                    id="month"
-                    name="month"
-                    value={formData.month}
-                    onChange={handleChange}
-                    className="block w-full shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                >
-                    <option value="">Month</option>
-                    {Array.from({ length: 12 }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                        {i + 1}
-                    </option>
-                    ))}
-                </select>
-                </div>
-                <div>
-                <select
-                    id="year"
-                    name="year"
-                    value={formData.year}
-                    onChange={handleChange}
-                    className="block w-full shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                >
-                    <option value="">Year</option>
-                    {Array.from({ length: 100 }, (_, i) => (
-                    <option key={i + 1920} value={i + 1920}>
-                        {i + 1920}
-                    </option>
-                    ))}
-                </select>
-                </div>
-            </div>
-            </div>
-        
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="aadharId">
-            Age
-          </label>
-          <input
-            type="number"
-            id="age"
-            name="age"
-            value={formData.age}
+
+            <input
+            type="text"
+            id="dob"
+            name="dob"
+            value={formData.dob}
             onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
-        </div>
+            </div>
+        
 
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="aadharId">
@@ -211,7 +174,7 @@ export default function Registration() {
             Constituency Name
           </label>
           <input
-            type="number"
+            type="text"
             id="constituency"
             name="constituency"
             value={formData.constituency}
@@ -219,16 +182,15 @@ export default function Registration() {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
-
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="aadharId">
-            Candidate ID
+            Party Representative
           </label>
           <input
-            type="number"
-            id="candidateId"
-            name="candidateId"
-            value={formData.candidateId}
+            type="text"
+            id="partyRep"
+            name="partyRep"
+            value={formData.partyRep}
             onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
@@ -236,14 +198,12 @@ export default function Registration() {
 
         
         <div className="mb-4">
-        <Link legacyBehavior href="/success">
           <button
             type="submit"
             className="bg-black text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Submit
           </button>
-          </Link>
         </div>
       </form>
     </div>
