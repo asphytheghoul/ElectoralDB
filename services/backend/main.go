@@ -85,6 +85,15 @@ func handleLogin(rw http.ResponseWriter,r *http.Request){
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+        err = bcrypt.CompareHashAndPassword([]byte(password), []byte(data.Password))
+        if err != nil {
+			log.Println(data.Password)
+			log.Println(err)
+            http.Error(rw, "Invalid password", http.StatusBadRequest)
+            return
+        }
+
 	}
 	//if aadhar id not found, return error message
 	if aadhar_id == "" {
@@ -92,9 +101,23 @@ func handleLogin(rw http.ResponseWriter,r *http.Request){
 		return
 	}
 
+	type ResponseData struct {
+		AadharId   string `json:"aadhar_id"`
+		Role       string `json:"role"`
+		PartyName  string `json:"party_name"`
+	}
+	
+	
+	responseData := ResponseData{
+		AadharId:  aadhar_id,
+		Role:      role,
+		PartyName: party_name,
+	}
+	
 	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
-	json.NewEncoder(rw).Encode(data)
+	json.NewEncoder(rw).Encode(responseData)
+	fmt.Print(responseData)
 }
 
 func insertUser(data FormData, hashedPassword string) error {
@@ -488,7 +511,6 @@ func handleSelectCandidate(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSelectParty(w http.ResponseWriter, r *http.Request) {
-    // Parse FormData from request body
     var data FormData
     err := json.NewDecoder(r.Body).Decode(&data)
     if err != nil {
@@ -496,7 +518,6 @@ func handleSelectParty(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Call selectParty function
     err = selectParty(data)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)

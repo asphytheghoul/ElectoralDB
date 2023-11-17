@@ -1,11 +1,24 @@
 'use client';
 import Image from 'next/image';
-import { useState } from 'react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
-const Home = ({user}) => {
+const Home = () => {
+  const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+  
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, []);
+
 
   const options = {
     electors: ["Voter Registration", "Candidate Information", "Voter Information"],
@@ -33,6 +46,7 @@ const Home = ({user}) => {
     </div>
     </Link>
     <nav className="ml-64 flex items-center">
+    {user && user.role==="voter" && (
       <div className="dropdown">
         <a
           href="#"
@@ -51,7 +65,9 @@ const Home = ({user}) => {
           </div>
         )}
       </div>
-        
+    )}
+    {user && user.role === 'candidate' && (
+
       <div className="dropdown">
         <a
           href="#"
@@ -70,6 +86,8 @@ const Home = ({user}) => {
           </div>
         )}
       </div>
+    )}
+    {user && user.role === 'parties' && (
       <div className="dropdown">
         <a
           href="#"
@@ -88,6 +106,8 @@ const Home = ({user}) => {
           </div>
         )}
       </div>
+    )}
+    {user && user.role === 'official' && (
       <div className="dropdown">
         <a
           href="#"
@@ -107,11 +127,13 @@ const Home = ({user}) => {
           </div>
         )}
       </div>
+    )}
     </nav>
     <div className="ml-auto pt-8">
     <Link legacyBehavior href="/loginuser">
-      <button className="bg-black text-white p-4 mr-4 rounded-full">{user ? user.aadharId : 'Login/Register'}</button>
+      <button className="bg-black text-white p-4 mr-4 rounded-full">{user ? user.aadhar_id : 'Login/Register'}</button>
       </Link>
+      {user && <button onClick={handleLogout}>Logout</button>}
     </div>
   </div>
         );
