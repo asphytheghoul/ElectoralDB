@@ -3,6 +3,8 @@ import Head from 'next/head';
 import Navbar from "../../components/Navbar"
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { toast,ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function RegisterUser() {
     const [formData, setFormData] = useState({
@@ -34,16 +36,18 @@ export default function RegisterUser() {
           }
     
           // Handle successful registration, if needed
-          console.log('Registration successful');
+          toast.success('Registration successful');
         } catch (error) {
           console.error('Error during registration:', error);
           // Handle registration error, if needed
+          toast.error('Registration failed');
         }
       };
 
 
 return (
     <div className="bg-white text-black">
+    <ToastContainer />
       <Head>
         <title>ELECTORAL DB</title>
       </Head>

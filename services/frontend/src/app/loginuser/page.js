@@ -4,6 +4,8 @@ import Navbar from "../../components/Navbar";
 import React, { useState, useEffect , useContext} from 'react';
 import AuthContext from '../../components/AuthContext';
 import Link from 'next/link';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function LoginUser() {
    const [formData, setFormData] = useState({
@@ -36,12 +38,13 @@ export default function LoginUser() {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+      toast.success('Login successful');
       const data = await response.json();
       setUser(data);
       localStorage.setItem('user', JSON.stringify(data));
       setLoggedIn(true);
     } catch (error) {
-      alert('no registered user, please register');
+      toast.error('Login failed! Wrong password or invalid user');
     }
  };
  
@@ -63,6 +66,7 @@ export default function LoginUser() {
    return (
     <AuthContext.Provider value={{user, setUser}}>
      <div className="bg-white text-black">
+      <ToastContainer />
        <Head>
          <title>ELECTORAL DB</title>
        </Head>

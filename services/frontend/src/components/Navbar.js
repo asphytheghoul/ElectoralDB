@@ -21,10 +21,10 @@ const Home = () => {
 
 
   const options = {
-    electors: ["Voter Registration", "Candidate Information", "Voter Information"],
-    candidates: ["Candidate Registration", "Voter Information", "Candidate Information", "Party Information"],
-    parties: ["Party Registration", "Voter Information", "Candidate Information", "Party Information"],
-    officials: ["Official Registration", "Official Information", "Candidate Information", "Party Information", "Voter Information"]
+    electors: ["Voter Registration",  "Voter Information", "Query Procedure"],
+    candidates: ["Candidate Registration","Candidate Information","Query Procedure"],
+    parties: ["Party Registration", "Party Information","Query Procedure"],
+    officials: ["Official Registration", "Official Information", "Query Procedure","Edit Constituency","Edit Poll booth","Edit Elections"]
   };
 
   const toggleDropdown = (option) => {
@@ -47,87 +47,134 @@ const Home = () => {
     </Link>
     <nav className="ml-64 flex items-center">
     {user && user.role==="voter" && (
-      <div className="dropdown">
-        <a
-          href="#"
-          className={`text-xl mx-4 ${selectedOption === 'electors' ? 'active' : ''}`}
-          onClick={() => toggleDropdown('electors')}
-        >
-          Electors
-        </a>
+  <div className="dropdown">
+    <a
+      href="#"
+      className={`text-xl mx-4 ${selectedOption === 'electors' ? 'active' : ''}`}
+      onClick={() => toggleDropdown('electors')}
+    >
+      Electors
+    </a>
         {showDropdown && selectedOption === 'electors' && (
           <div className="dropdown-content">
-            {options.electors.map((item, index) => (
-              <Link legacyBehavior href="/register/voter/" key={index}>
-                {item}
-              </Link>
-            ))}
+            {options.electors.map((item, index) => {
+              let link;
+              switch(index) {
+                case 0:
+                  link = "/register/voter";
+                  break;
+                case 1:
+                  link = "/information/voter";
+                  break;
+                case 2:
+                  link = "/query";
+                  break;
+                default:
+                  link = "/register/voter";
+              }
+              return (
+                <Link legacyBehavior href={link} key={index}>
+                  {item}
+                </Link>
+              )
+            })}
           </div>
         )}
       </div>
     )}
     {user && user.role === 'candidate' && (
 
-      <div className="dropdown">
-        <a
-          href="#"
-          className={`text-xl mx-4 ${selectedOption === 'candidates' ? 'active' : ''}`}
-          onClick={() => toggleDropdown('candidates')}
-        >
-          Candidates
-        </a>
-        {showDropdown && selectedOption === 'candidates' && (
-          <div className="dropdown-content">
-            {options.candidates.map((item, index) => (
-              <Link legacyBehavior href={item === 'Candidate Information' ? '/information/candidate' : `/register/candidate/`} key={index}>
-                {item}
-              </Link>
-            ))}
-          </div>
-        )}
+<div className="dropdown">
+  <a
+    href="#"
+    className={`text-xl mx-4 ${selectedOption === 'candidates' ? 'active' : ''}`}
+    onClick={() => toggleDropdown('candidates')}
+  >
+    Candidates
+  </a>
+  {showDropdown && selectedOption === 'candidates' && (
+    <div className="dropdown-content">
+      {options.candidates.map((item, index) => (
+        <Link legacyBehavior href={item === 'Candidate Information' ? '/information/candidate' : `/register/candidate/`} key={index}>
+          {item}
+        </Link>
+      ))}
+    </div>
+  )}
+</div>
+)}
+{user && user.role === 'parties' && (
+  <div className="dropdown">
+    <a
+      href="#"
+      className={`text-xl mx-4 ${selectedOption === 'parties' ? 'active' : ''}`}
+      onClick={() => toggleDropdown('parties')}
+    >
+      Parties
+    </a>
+    {showDropdown && selectedOption === 'parties' && (
+      <div className="dropdown-content">
+        {options.parties.map((item, index) => {
+          let link;
+          switch(index) {
+            case 0:
+              link = "/register/party";
+              break;
+            case 1:
+              link = "/information/party";
+              break;
+            case 2:
+              link = "/query";
+              break;
+            default:
+              link = "/register/party";
+          }
+          return (
+            <Link legacyBehavior href={link} key={index}>
+              {item}
+            </Link>
+          )
+        })}
       </div>
     )}
-    {user && user.role === 'parties' && (
-      <div className="dropdown">
-        <a
-          href="#"
-          className={`text-xl mx-4 ${selectedOption === 'parties' ? 'active' : ''}`}
-          onClick={() => toggleDropdown('parties')}
-        >
-          Parties
-        </a>
-        {showDropdown && selectedOption === 'parties' && (
-          <div className="dropdown-content">
-            {options.parties.map((item, index) => (
-              <Link legacyBehavior href="/register/party/" key={index}>
-                {item}
-              </Link>
-            ))}
-          </div>
-        )}
+  </div>
+)}
+{user && user.role === 'official' && (
+  <div className="dropdown">
+    <a
+      href="#"
+      className={`text-xl mx-4 ${selectedOption === 'officials' ? 'active' : ''}`}
+      onClick={() => toggleDropdown('officials')}
+    >
+      ECI Officials
+    </a>
+    {showDropdown && selectedOption === 'officials' && (
+      <div className="dropdown-content">
+        {options.officials.map((item, index) => {
+          let link;
+          switch(index) {
+            case 0:
+              link = "/register/eci";
+              break;
+            case 1:
+              link = "/information/officials";
+              break;
+            case 2:
+              link = "/query";
+              break;
+            default:
+              link = "/register/eci";
+          }
+          return (
+            <Link legacyBehavior href={link} key={index}>
+              {item}
+            </Link>
+          )
+        })}
       </div>
     )}
-    {user && user.role === 'official' && (
-      <div className="dropdown">
-        <a
-          href="#"
-          className={`text-xl mx-4 ${selectedOption === 'officials' ? 'active' : ''}`}
-          onClick={() => toggleDropdown('officials')}
-        >
-          ECI Officials
-        </a>
-        {showDropdown && selectedOption === 'officials' && (
-          <div className="dropdown-content">
-            {options.officials.map((item, index) => (
-              <Link legacyBehavior href="/register/eci/" key={index}>
-                {item}
-              </Link>
-            
-            ))}
-          </div>
-        )}
-      </div>
-    )}
+  </div>
+)}
     </nav>
     <div className="ml-auto pt-8">
     <Link legacyBehavior href="/loginuser">

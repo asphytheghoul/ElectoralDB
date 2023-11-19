@@ -1,9 +1,3 @@
-//once logged in, if aadhar id is part of table display the data from voter table for that aadhar id
-//else redirect them to registration form. once they register, insert into voter table and login table
-//for candidate,party,voter,ECI official only limit visibility to those respectively.
-//for ECI officials - make 4 forms - ECI form, Constituency form, Polling booth form, Election form
-//if user logged in, delete that user's record from the respective table. redirect them to register screen
-//whenever information button is clicked, call procedure to display the information from the respective table in a tabular format
 package main
 
 import (
@@ -44,11 +38,16 @@ type FormData struct {
 	UserName         string `json:"userName"`
 	Password         string `json:"password"`
 	Role             string `json:"role"`
-	ElectionId		 string `json:"electionID"`
+	ElectionId		 string `json:"electionId"`
 	ElectionType	 string `json:"electionType"`
 	DateOfElection   string `json:"electionDate"`
 	Seats		     string `json:"seats"`
-
+	OfficialId       string `json:"officialId"`
+	ConstituencyAssigned string `json:"constituencyAssigned"`
+	PollBoothAssigned string `json:"pollBoothAssigned"`
+	HigherRankId string `json:"higherRankId"`
+	OfficialRank string `json:"officialRank"`
+	PartyMemberCount string `json:"partyMemberCount"`
 }
 
 func hashPassword(password string) (string, error) {
@@ -226,6 +225,228 @@ func getConstDeets(w http.ResponseWriter, r *http.Request) {
     w.Write(jsonData)
 }
 
+func getvoterinformation(w http.ResponseWriter, r *http.Request) {
+    rows, err := db.Query("call getvoterdets()")
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    defer rows.Close()
+
+    var results []map[string]string
+
+    for rows.Next() {
+		var aadhar_id string
+		var first_name string
+		var last_name string
+		var middle_name string
+		var gender string
+		var dob string
+		var age string
+		var state string
+		var phone_no string
+		var constituency_name string
+		var poll_booth_id string
+		var voter_id string
+
+		if err := rows.Scan(&aadhar_id, &first_name, &last_name, &middle_name, &gender, &dob, &age, &state, &phone_no, &constituency_name, &poll_booth_id, &voter_id); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		
+
+		row := map[string]string{
+			"aadharID": aadhar_id,
+			"firstName": first_name,
+			"lastName": last_name,
+			"middleName": middle_name,
+			"gender":gender,
+			"dob":dob,
+			"age":age,
+			"state":state,
+			"phoneNumber":phone_no,
+			"constituencyName":constituency_name,
+			"pollingBoothId":poll_booth_id,
+			"voterId":voter_id,
+		}
+		
+		results = append(results, row)
+	}
+
+    jsonData, err := json.Marshal(results)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    w.Write(jsonData)
+}
+
+func getcandidateinformation(w http.ResponseWriter, r *http.Request) {
+    rows, err := db.Query("call getcanddets()")
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    defer rows.Close()
+
+    var results []map[string]string
+
+    for rows.Next() {
+		var aadharID string
+		var firstName string
+		var lastName string
+		var middleName string
+		var gender string
+		var dob string
+		var age string
+		var phoneNumber string
+		var constituencyFighting string
+		var candidateID string
+		var partyRep string
+
+		if err := rows.Scan(&aadharID, &firstName, &lastName, &middleName, &gender, &dob, &age, &phoneNumber, &constituencyFighting, &candidateID, &partyRep); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		row := map[string]string{
+			"aadharID": aadharID,
+			"firstName": firstName,
+			"lastName": lastName,
+			"middleName": middleName,
+			"gender": gender,
+			"dob": dob,
+			"age": age,
+			"phoneNumber": phoneNumber,
+			"constituencyFighting": constituencyFighting,
+			"candidateID": candidateID,
+			"partyRep": partyRep,
+		}
+
+		results = append(results, row)
+	}		
+    jsonData, err := json.Marshal(results)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    w.Write(jsonData)
+}
+
+func getpartyinformation(w http.ResponseWriter, r *http.Request) {
+    rows, err := db.Query("call getpartydets()")
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    defer rows.Close()
+
+    var results []map[string]string
+
+    for rows.Next() {
+        var partyName string
+        var partySymbol string
+        var president string
+        var partyFunds string
+		var headquarters string
+		var seatsWon string
+		var partyMemberCount string
+
+        if err := rows.Scan(&partyName, &partySymbol, &president, &partyFunds,&headquarters,&seatsWon,&partyMemberCount); err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest)
+            return
+        }
+
+        row := map[string]string{
+            "partyName": partyName,
+            "partySymbol":        partySymbol,
+            "president":      president,
+            "partyFunds":   partyFunds,
+			"headquarters":   headquarters,
+			"seatsWon":   seatsWon,
+			"partyMemberCount":   partyMemberCount,
+        }
+
+        results = append(results, row)
+    }
+
+    jsonData, err := json.Marshal(results)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    w.Write(jsonData)
+}
+func getofficialinformation(w http.ResponseWriter, r *http.Request) {
+    rows, err := db.Query("call getofficialdets()")
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    defer rows.Close()
+
+    var results []map[string]string
+
+    for rows.Next() {
+		var aadharID string
+		var firstName string
+		var lastName string
+		var middleName string
+		var gender string
+		var dob string
+		var age string
+		var phoneNumber string
+		var constituencyAssigned string
+		var pollBoothAssigned string
+		var officialID string
+		var officialRank string
+		var higherRankID string
+
+		if err := rows.Scan(&aadharID, &firstName, &lastName, &middleName, &gender, &dob, &age, &phoneNumber, &constituencyAssigned, &pollBoothAssigned, &officialID, &officialRank, &higherRankID); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		row := map[string]string{
+			"aadharID": aadharID,
+			"firstName": firstName,
+			"lastName": lastName,
+			"middleName": middleName,
+			"gender": gender,
+			"dob": dob,
+			"age": age,
+			"phoneNumber": phoneNumber,
+			"constituencyAssigned": constituencyAssigned,
+			"pollBoothAssigned": pollBoothAssigned,
+			"officialID": officialID,
+			"officialRank": officialRank,
+			"higherRankID": higherRankID,
+		}
+
+		results = append(results, row)
+
+	}
+
+    jsonData, err := json.Marshal(results)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    w.Write(jsonData)
+}
+
 func UpdateelectionDetails(db *sql.DB, eleiD string, eletyp string, dateofe string, seats string) error {
 	fmt.Println("eleiD:", eleiD, "eletyp:", eletyp, "dateofe:", dateofe, "seats:", seats)
 	query := "UPDATE election SET election_type = ?, seats = ?, dateofelection = ?  WHERE election_id = ?"
@@ -286,6 +507,240 @@ func handleDeleteElection(w http.ResponseWriter,r *http.Request){
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Election Deleted successfully"))
 }
+
+// Update function for Voter
+func UpdateVoterDetails(db *sql.DB, aadharID string, firstName string, lastName string, middleName string, gender string, dob string, state string, phoneNo string, voterID string) error {
+    query := "UPDATE voter SET aadhar_id = ?, first_name = ?, last_name = ?, middle_name = ?, gender = ?, dob = ?, state = ?, phone_no = ? WHERE voter_id = ?"
+    _, err := db.Exec(query, aadharID, firstName, lastName, middleName, gender, dob, state, phoneNo, voterID)
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
+// Update function for Party
+func UpdatePartyDetails(db *sql.DB, partyName string, partySymbol string, president string, partyFunds string, headquarters string, partyMemberCount string) error {
+    query := "UPDATE party SET party_symbol = ?, president = ?, party_funds = ?, headquarters = ? party_member_count = ?WHERE party_name = ?"
+    _, err := db.Exec(query, partySymbol, president, partyFunds, headquarters,partyMemberCount, partyName)
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
+// Update function for Candidate
+func UpdateCandidateDetails(db *sql.DB, aadharID string, firstName string, lastName string, middleName string, gender string, dob string, state string, phoneNo string) error {
+    query := "UPDATE candidate SET  first_name = ?, last_name = ?, middle_name = ?, gender = ?, dob = ?, state = ?, phone_no = ? WHERE aadhar_id = ?"
+    _, err := db.Exec(query, firstName, lastName, middleName, gender, dob, state, phoneNo, aadharID)
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
+// Update function for Official
+func UpdateOfficialDetails(db *sql.DB, aadharID string, firstName string, lastName string, middleName string, gender string, dob string, phoneNo string, constituencyAssigned string, pollBoothAssigned string, officialID string) error {
+    query := "UPDATE official SET aadhar_id = ?, first_name = ?, last_name = ?, middle_name = ?, gender = ?, dob = ?, phone_no = ?, constituency_assigned = ?, poll_booth_assigned = ? WHERE official_id = ?"
+    _, err := db.Exec(query, aadharID, firstName, lastName, middleName, gender, dob, phoneNo, constituencyAssigned, pollBoothAssigned, officialID)
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
+func DeleteVoterByAadharID(db *sql.DB, aadharID string) error {
+    query := "DELETE FROM voter WHERE aadhar_id = ?"
+    _, err := db.Exec(query, aadharID)
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
+func DeleteCandidateByAadharID(db *sql.DB, aadharID string) error {
+	query := "DELETE FROM candidate WHERE aadhar_id = ?"
+	_, err := db.Exec(query, aadharID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeletePartyByPartyName(db *sql.DB, partyName string) error {
+	query := "DELETE FROM party WHERE party_name = ?"
+	_, err := db.Exec(query, partyName)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeleteOfficialByAadharID(db *sql.DB, aadharID string) error {
+	query := "DELETE FROM official WHERE aadhar_id = ?"
+	_, err := db.Exec(query, aadharID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func handleDeleteVoter(w http.ResponseWriter, r *http.Request) {
+	// Parse FormData from request body
+	var data FormData
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Call DeleteVoterByAadharID function
+	err = DeleteVoterByAadharID(db, data.AadharId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Send success response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Voter deleted successfully"))
+}
+
+func handleDeleteCandidate(w http.ResponseWriter, r *http.Request) {
+	// Parse FormData from request body
+	var data FormData
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Call DeleteCandidateByAadharID function
+	err = DeleteCandidateByAadharID(db, data.AadharId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Send success response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Candidate deleted successfully"))
+}
+
+func handleDeleteParty(w http.ResponseWriter, r *http.Request) {
+	// Parse FormData from request body
+	var data FormData
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Call DeletePartyByPartyName function
+	err = DeletePartyByPartyName(db, data.PartyName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Send success response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Party deleted successfully"))
+}
+
+func handleDeleteOfficial(w http.ResponseWriter, r *http.Request) {
+	// Parse FormData from request body
+	var data FormData
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Call DeleteOfficialByAadharID function
+	err = DeleteOfficialByAadharID(db, data.AadharId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Send success response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Official deleted successfully"))
+}
+
+func handleUpdateVoter(w http.ResponseWriter, r *http.Request) {
+    var data FormData
+    err := json.NewDecoder(r.Body).Decode(&data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    err = UpdateVoterDetails(db, data.AadharId, data.FirstName, data.LastName, data.MiddleName, data.Gender, data.Dob, data.State, data.PhoneNumber, data.VoterId)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("Voter updated successfully"))
+}
+
+func handleUpdateParty(w http.ResponseWriter, r *http.Request) {
+    var data FormData
+    err := json.NewDecoder(r.Body).Decode(&data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    err = UpdatePartyDetails(db, data.PartyName, data.PartySymbol, data.PartyPresident, data.PartyFunds, data.HeadQuarters, data.PartyMemberCount)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("Party updated successfully"))
+}
+
+func handleUpdateCandidate(w http.ResponseWriter, r *http.Request) {
+    var data FormData
+    err := json.NewDecoder(r.Body).Decode(&data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    err = UpdateCandidateDetails(db, data.FirstName, data.LastName, data.MiddleName, data.Gender, data.Dob, data.State, data.PhoneNumber,data.AadharId)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("Candidate updated successfully"))
+}
+
+func handleUpdateOfficial(w http.ResponseWriter, r *http.Request) {
+    var data FormData
+    err := json.NewDecoder(r.Body).Decode(&data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    err = UpdateOfficialDetails(db, data.AadharId, data.FirstName, data.LastName, data.MiddleName, data.Gender, data.Dob, data.PhoneNumber, data.ConstituencyAssigned, data.PollBoothAssigned, data.OfficialId)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("Official updated successfully"))
+}
+
+
 
 func selectVoter(data FormData) error {
 	rows, err := db.Query("SELECT * FROM voter where aadhar_id = ?", data.AadharId)
@@ -610,6 +1065,18 @@ func main() {
 	http.HandleFunc("/selectCandidate", handleSelectCandidate)
 	http.HandleFunc("/selectParty", handleSelectParty)
 	http.HandleFunc("/getConstDeets", getConstDeets)
+	http.HandleFunc("/getvoterinformation", getvoterinformation)
+	http.HandleFunc("/getcandidateinformation", getcandidateinformation)
+	http.HandleFunc("/getpartyinformation", getpartyinformation)
+	http.HandleFunc("/getofficialinformation", getofficialinformation)
+	http.HandleFunc("/updateVoter", handleUpdateVoter)
+	http.HandleFunc("/updateParty", handleUpdateParty)
+	http.HandleFunc("/updateCandidate", handleUpdateCandidate)
+	http.HandleFunc("/updateOfficial", handleUpdateOfficial)
+	http.HandleFunc("/deleteVoter", handleDeleteVoter)
+	http.HandleFunc("/deleteCandidate", handleDeleteCandidate)
+	http.HandleFunc("/deleteParty", handleDeleteParty)
+	http.HandleFunc("/deleteOfficial", handleDeleteOfficial)
 	http.HandleFunc("/updateElection",handleUpdateElection)
 	http.HandleFunc("/deleteElection",handleDeleteElection)
 	log.Println("Server is available at http://localhost:8000")

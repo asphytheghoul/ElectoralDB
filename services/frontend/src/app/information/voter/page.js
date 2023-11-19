@@ -9,7 +9,7 @@ export default function Registration() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch('http://localhost:8000/getcandidateinformation');
+      const response = await fetch('http://localhost:8000/getvoterinformation');
       const data = await response.json();
       setData(data);
     };
@@ -34,10 +34,11 @@ export default function Registration() {
               <th>Gender</th>
               <th>DOB</th>
               <th>Age</th>
+              <th>State</th>
               <th>Phone Number</th>
-              <th>Constituency Fighting</th>  
-              <th>Candidate ID</th>  
-              <th>Party Representative</th>  
+              <th>Constituency Name</th>
+              <th>Polling Booth ID</th>
+              <th>Voter ID</th>
             </tr>
           </thead>
           <tbody>
@@ -50,15 +51,16 @@ export default function Registration() {
                 <td>{item.gender}</td>
                 <td>{item.dob}</td>
                 <td>{item.age}</td>
+                <td>{item.state}</td>
                 <td>{item.phoneNumber}</td>
-                <td>{item.constituencyFighting}</td>
-                <td>{item.candidateID}</td>
-                <td>{item.partyRep}</td>
+                <td>{item.constituencyName}</td>
+                <td>{item.pollingBoothID}</td>
+                <td>{item.voterID}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        <Link legacyBehavior href="/update/candidate">
+        <Link legacyBehavior href="/update/voter">
             <button className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
               Update
             </button>

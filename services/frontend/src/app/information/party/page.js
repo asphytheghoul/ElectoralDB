@@ -9,7 +9,7 @@ export default function Registration() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch('http://localhost:8000/getcandidateinformation');
+      const response = await fetch('http://localhost:8000/getpartyinformation');
       const data = await response.json();
       setData(data);
     };
@@ -27,38 +27,30 @@ export default function Registration() {
         <table>
           <thead>
             <tr>
-              <th>Aadhar ID</th>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Middle Name</th>
-              <th>Gender</th>
-              <th>DOB</th>
-              <th>Age</th>
-              <th>Phone Number</th>
-              <th>Constituency Fighting</th>  
-              <th>Candidate ID</th>  
-              <th>Party Representative</th>  
+              <th>Party Name</th>
+              <th>Party Symbol</th>
+              <th>President</th>
+              <th>Party Funds</th>
+              <th>Headquarters</th>
+              <th>Seats Won</th>
+              <th>Party Member Count</th>
             </tr>
           </thead>
           <tbody>
             {data.map((item, index) => (
               <tr key={index}>
-                <td>{item.aadharID}</td>
-                <td>{item.firstName}</td>
-                <td>{item.lastName}</td>
-                <td>{item.middleName}</td>
-                <td>{item.gender}</td>
-                <td>{item.dob}</td>
-                <td>{item.age}</td>
-                <td>{item.phoneNumber}</td>
-                <td>{item.constituencyFighting}</td>
-                <td>{item.candidateID}</td>
-                <td>{item.partyRep}</td>
+                <td>{item.partyName}</td>
+                <td>{item.partySymbol}</td>
+                <td>{item.president}</td>
+                <td>{item.partyFunds}</td>
+                <td>{item.headquarters}</td>
+                <td>{item.seatsWon}</td>
+                <td>{item.partyMemberCount}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        <Link legacyBehavior href="/update/candidate">
+        <Link legacyBehavior href="/update/party">
             <button className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
               Update
             </button>

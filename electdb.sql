@@ -217,6 +217,10 @@ create function malecount(cname varchar(30)) returns int deterministic begin dec
 create function femalecount(cname varchar(30)) returns int deterministic begin declare female_count int; select sum(case when gender = 'Female' then 1 else 0 end) into female_count from voter where constituency_name = cname; return female_count; end//
 
 create procedure getconsdets() begin select c.constituency_name, malecount(c.constituency_name) as male_count, femalecount(c.constituency_name) AS female_count, count(distinct pb.poll_booth_id) as poll_booth_count from constituency c left join poll_booth pb on c.constituency_id = pb.constituency_id group by c.constituency_name; end//
+create procedure getvoterdets() begin select aadhar_id, first_name, last_name, middle_name, gender, dob,age, state, phone_no, constituency_name, poll_booth_id, voter_id from voter; end//
+create procedure getcanddets() begin select aadhar_id, first_name, last_name, middle_name, gender, dob,age, phone_no, cons_fight,candidate_id,party_rep from candidate; end//
+create procedure getpartydets() begin select party_name,party_symbol,president,party_funds,headquarters,seats_won,party_member_count from party; end//
+create procedure getofficialdets() begin select aadhar_id, first_name, last_name, middle_name, gender, dob, age,phone_no, constituency_assigned,poll_booth_assigned,official_id,official_rank,higher_rank_id from official; end//
 delimiter ;
 
 alter table constituency drop constraint constituency_ibfk_2;
