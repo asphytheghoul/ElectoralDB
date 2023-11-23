@@ -26,12 +26,12 @@ export default function VoterUpdate() {
   }
 
   const [formData, setFormData] = useState({
-      'partyName': '',
-      'partySymbol': '',
-      'president': '',
-      'partyFunds': '',
-      'headquarters': '',
-      'partyMemberCount': ''
+      partyName: '',
+      partySymbol: '',
+      president: '',
+      partyFunds: '',
+      headquarters: '',
+      partyMemberCount: ''
 
   });
 

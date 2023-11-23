@@ -6,10 +6,12 @@ import Link from 'next/link';
 
 export default function Registration() {
   const [data, setData] = useState([]);
+  const user = JSON.parse(localStorage.getItem('user'));
+  const partyName = user.party_name
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch('http://localhost:8000/getpartyinformation');
+      const response = await fetch(`http://localhost:8000/getpartyinformation?partyName=${partyName}`);
       const data = await response.json();
       setData(data);
     };
@@ -37,17 +39,15 @@ export default function Registration() {
             </tr>
           </thead>
           <tbody>
-            {data.map((item, index) => (
-              <tr key={index}>
-                <td>{item.partyName}</td>
-                <td>{item.partySymbol}</td>
-                <td>{item.president}</td>
-                <td>{item.partyFunds}</td>
-                <td>{item.headquarters}</td>
-                <td>{item.seatsWon}</td>
-                <td>{item.partyMemberCount}</td>
+              <tr>
+                <td>{data.partyName}</td>
+                <td>{data.partySymbol}</td>
+                <td>{data.president}</td>
+                <td>{data.partyFunds}</td>
+                <td>{data.headquarters}</td>
+                <td>{data.seatsWon}</td>
+                <td>{data.partyMemberCount}</td>
               </tr>
-            ))}
           </tbody>
         </table>
         <Link legacyBehavior href="/update/party">

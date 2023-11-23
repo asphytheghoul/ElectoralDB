@@ -15,6 +15,7 @@ export default function Registration() {
           },
           body: JSON.stringify(formData),
         });
+        console.log(response);
   
         if (!response.ok) {
           throw new Error('Something went wrong');
@@ -32,8 +33,10 @@ export default function Registration() {
     middleName: '',
     gender: '',
     dob: '',
-    state: '',
     phone: '',
+    constituency: '',
+    candidateId: '',
+    partyRep: '',
   });
 
   const handleChange = (e) => {
@@ -151,19 +154,7 @@ export default function Registration() {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">
-            State
-          </label>
-          <input
-            type="text"
-            id="state"
-            name="state"
-            value={formData.state}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
+        
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">
             Phone Number
@@ -178,6 +169,48 @@ export default function Registration() {
           />
         </div>
         
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">
+            Constituency Fighting
+          </label>
+          <input
+            type="text"
+            id="constituency"
+            name="constituency"
+            value={formData.constituency}
+            onChange={handleChange}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">
+            Candidate ID
+          </label>
+          <input
+            type="text"
+            id="candidateId"
+            name="candidateId"
+            value={formData.candidateId}
+            onChange={handleChange}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">
+            Party Representating
+          </label>
+          <input
+            type="text"
+            id="partyRep"
+            name="partyRep"
+            value={formData.partyRep}
+            onChange={handleChange}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+        </div>
+
         <div className="mb-4">
           <button
             type="submit"

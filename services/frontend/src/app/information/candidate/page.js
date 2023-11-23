@@ -6,10 +6,12 @@ import Link from 'next/link';
 
 export default function Registration() {
   const [data, setData] = useState([]);
+  const user = JSON.parse(localStorage.getItem('user'));
+  const aadhar_id = user.aadhar_id;
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch('http://localhost:8000/getcandidateinformation');
+      const response = await fetch(`http://localhost:8000/getcandidateinformation?aadharId=${aadhar_id}`);
       const data = await response.json();
       setData(data);
     };
@@ -41,21 +43,19 @@ export default function Registration() {
             </tr>
           </thead>
           <tbody>
-            {data.map((item, index) => (
-              <tr key={index}>
-                <td>{item.aadharID}</td>
-                <td>{item.firstName}</td>
-                <td>{item.lastName}</td>
-                <td>{item.middleName}</td>
-                <td>{item.gender}</td>
-                <td>{item.dob}</td>
-                <td>{item.age}</td>
-                <td>{item.phoneNumber}</td>
-                <td>{item.constituencyFighting}</td>
-                <td>{item.candidateID}</td>
-                <td>{item.partyRep}</td>
+              <tr>
+                <td>{data.aadharId}</td>
+                <td>{data.firstName}</td>
+                <td>{data.lastName}</td>
+                <td>{data.middleName}</td>
+                <td>{data.gender}</td>
+                <td>{data.dob}</td>
+                <td>{data.age}</td>
+                <td>{data.phoneNumber}</td>
+                <td>{data.constituencyFighting}</td>
+                <td>{data.candidateId}</td>
+                <td>{data.partyRep}</td>
               </tr>
-            ))}
           </tbody>
         </table>
         <Link legacyBehavior href="/update/candidate">

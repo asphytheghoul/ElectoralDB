@@ -82,7 +82,7 @@ const Home = () => {
         )}
       </div>
     )}
-    {user && user.role === 'candidate' && (
+    {/* {user && user.role === 'candidate' && (
 
 <div className="dropdown">
   <a
@@ -102,8 +102,44 @@ const Home = () => {
     </div>
   )}
 </div>
+)} */}
+{user && user.role === 'candidate' && (
+  <div className="dropdown">
+    <a
+      href="#"
+      className={`text-xl mx-4 ${selectedOption === 'candidates' ? 'active' : ''}`}
+      onClick={() => toggleDropdown('candidates')}
+    >
+      Candidates
+    </a>
+    {showDropdown && selectedOption === 'candidates' && (
+      <div className="dropdown-content">
+        {options.candidates.map((item, index) => {
+          let link;
+          switch(index) {
+            case 0:
+              link = "/register/candidate";
+              break;
+            case 1:
+              link = "/information/candidate";
+              break;
+            case 2:
+              link = "/query/candidate";
+              break;
+            default:
+              link = "/register/candidate";
+          }
+          return (
+            <Link legacyBehavior href={link} key={index}>
+              {item}
+            </Link>
+          )
+        })}
+      </div>
+    )}
+  </div>
 )}
-{user && user.role === 'parties' && (
+{user && user.role === 'party' && (
   <div className="dropdown">
     <a
       href="#"

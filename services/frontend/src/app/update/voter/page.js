@@ -1,3 +1,4 @@
+'use client';
 import Head from 'next/head';
 import Navbar from "../../../components/Navbar"
 import React, { useState } from 'react';
@@ -74,7 +75,7 @@ export default function VoterUpdate() {
       <Navbar />
     <div className="w-full max-w-lg mx-auto">
       <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <h2 className="text-black text-xl mb-4">Candidate Update Form</h2>
+        <h2 className="text-black text-xl mb-4">Voter Update Form</h2>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="aadharId">
             Aadhar ID

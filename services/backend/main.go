@@ -225,55 +225,56 @@ func getConstDeets(w http.ResponseWriter, r *http.Request) {
     w.Write(jsonData)
 }
 
+func sendJSONError(w http.ResponseWriter, message string, statusCode int) {
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(statusCode)
+    errorObject := map[string]string{"error": message}
+    jsonData, _ := json.Marshal(errorObject)
+    w.Write(jsonData)
+}
+
 func getvoterinformation(w http.ResponseWriter, r *http.Request) {
-    rows, err := db.Query("call getvoterdets()")
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+    aadharId := r.URL.Query().Get("aadharId")
+    if aadharId == "" {
+        http.Error(w, "Aadhar ID is required", http.StatusBadRequest)
         return
     }
-    defer rows.Close()
+    row := db.QueryRow("SELECT * FROM voter WHERE aadhar_id = ?", aadharId)
 
-    var results []map[string]string
+    var aadhar_id string
+    var first_name string
+    var last_name string
+    var middle_name sql.NullString
+    var gender string
+    var dob string
+    var age string
+    var state string
+    var phone_no string
+    var constituency_name string
+    var poll_booth_id string
+    var voter_id string
 
-    for rows.Next() {
-		var aadhar_id string
-		var first_name string
-		var last_name string
-		var middle_name string
-		var gender string
-		var dob string
-		var age string
-		var state string
-		var phone_no string
-		var constituency_name string
-		var poll_booth_id string
-		var voter_id string
+    if err := row.Scan(&aadhar_id, &first_name, &last_name, &middle_name, &gender, &dob, &age, &state, &phone_no, &constituency_name, &poll_booth_id, &voter_id); err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
-		if err := rows.Scan(&aadhar_id, &first_name, &last_name, &middle_name, &gender, &dob, &age, &state, &phone_no, &constituency_name, &poll_booth_id, &voter_id); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		
+    voter := map[string]string{
+        "aadharId": aadhar_id,
+        "firstName": first_name,
+        "lastName": last_name,
+        "middleName": middle_name.String,
+        "gender":gender,
+        "dob":dob,
+        "age":age,
+        "state":state,
+        "phoneNumber":phone_no,
+        "constituencyName":constituency_name,
+        "pollingBoothId":poll_booth_id,
+        "voterId":voter_id,
+    }
 
-		row := map[string]string{
-			"aadharID": aadhar_id,
-			"firstName": first_name,
-			"lastName": last_name,
-			"middleName": middle_name,
-			"gender":gender,
-			"dob":dob,
-			"age":age,
-			"state":state,
-			"phoneNumber":phone_no,
-			"constituencyName":constituency_name,
-			"pollingBoothId":poll_booth_id,
-			"voterId":voter_id,
-		}
-		
-		results = append(results, row)
-	}
-
-    jsonData, err := json.Marshal(results)
+    jsonData, err := json.Marshal(voter)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -285,50 +286,45 @@ func getvoterinformation(w http.ResponseWriter, r *http.Request) {
 }
 
 func getcandidateinformation(w http.ResponseWriter, r *http.Request) {
-    rows, err := db.Query("call getcanddets()")
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+    aadharId := r.URL.Query().Get("aadharId")
+    if aadharId == "" {
+        http.Error(w, "Aadhar ID is required", http.StatusBadRequest)
         return
     }
-    defer rows.Close()
+    row := db.QueryRow("SELECT * FROM candidate WHERE aadhar_id = ?", aadharId)
 
-    var results []map[string]string
+    var aadharID string
+    var firstName string
+    var lastName string
+    var middleName sql.NullString
+    var gender string
+    var dob string
+    var age string
+    var phoneNumber string
+    var constituencyFighting string
+    var candidateID string
+    var partyRep string
 
-    for rows.Next() {
-		var aadharID string
-		var firstName string
-		var lastName string
-		var middleName string
-		var gender string
-		var dob string
-		var age string
-		var phoneNumber string
-		var constituencyFighting string
-		var candidateID string
-		var partyRep string
+    if err := row.Scan(&aadharID, &firstName, &lastName, &middleName, &gender, &dob, &age, &phoneNumber, &constituencyFighting, &candidateID, &partyRep); err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
-		if err := rows.Scan(&aadharID, &firstName, &lastName, &middleName, &gender, &dob, &age, &phoneNumber, &constituencyFighting, &candidateID, &partyRep); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+    candidate := map[string]string{
+        "aadharId": aadharID,
+        "firstName": firstName,
+        "lastName": lastName,
+        "middleName": middleName.String,
+        "gender": gender,
+        "dob": dob,
+        "age": age,
+        "phoneNumber": phoneNumber,
+        "constituencyFighting": constituencyFighting,
+        "candidateId": candidateID,
+        "partyRep": partyRep,
+    }
 
-		row := map[string]string{
-			"aadharID": aadharID,
-			"firstName": firstName,
-			"lastName": lastName,
-			"middleName": middleName,
-			"gender": gender,
-			"dob": dob,
-			"age": age,
-			"phoneNumber": phoneNumber,
-			"constituencyFighting": constituencyFighting,
-			"candidateID": candidateID,
-			"partyRep": partyRep,
-		}
-
-		results = append(results, row)
-	}		
-    jsonData, err := json.Marshal(results)
+    jsonData, err := json.Marshal(candidate)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -340,43 +336,35 @@ func getcandidateinformation(w http.ResponseWriter, r *http.Request) {
 }
 
 func getpartyinformation(w http.ResponseWriter, r *http.Request) {
-    rows, err := db.Query("call getpartydets()")
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+    partyName := r.URL.Query().Get("partyName")
+    if partyName == "" {
+        http.Error(w, "Party name is required", http.StatusBadRequest)
         return
     }
-    defer rows.Close()
+    row := db.QueryRow("SELECT party_name, party_symbol, president, party_funds, headquarters, seats_won, party_member_count FROM party where party_name = ?", partyName)
+    var partySymbol string
+    var president string
+    var partyFunds string
+    var headquarters string
+    var seatsWon sql.NullString
+    var partyMemberCount string
 
-    var results []map[string]string
-
-    for rows.Next() {
-        var partyName string
-        var partySymbol string
-        var president string
-        var partyFunds string
-		var headquarters string
-		var seatsWon string
-		var partyMemberCount string
-
-        if err := rows.Scan(&partyName, &partySymbol, &president, &partyFunds,&headquarters,&seatsWon,&partyMemberCount); err != nil {
-            http.Error(w, err.Error(), http.StatusBadRequest)
-            return
-        }
-
-        row := map[string]string{
-            "partyName": partyName,
-            "partySymbol":        partySymbol,
-            "president":      president,
-            "partyFunds":   partyFunds,
-			"headquarters":   headquarters,
-			"seatsWon":   seatsWon,
-			"partyMemberCount":   partyMemberCount,
-        }
-
-        results = append(results, row)
+    if err := row.Scan(&partyName, &partySymbol, &president, &partyFunds,&headquarters,&seatsWon,&partyMemberCount); err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
     }
 
-    jsonData, err := json.Marshal(results)
+    party := map[string]string{
+        "partyName": partyName,
+        "partySymbol": partySymbol,
+        "president": president,
+        "partyFunds": partyFunds,
+        "headquarters": headquarters,
+        "seatsWon": seatsWon.String,
+        "partyMemberCount": partyMemberCount,
+    }
+
+    jsonData, err := json.Marshal(party)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -386,65 +374,71 @@ func getpartyinformation(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
     w.Write(jsonData)
 }
+
 func getofficialinformation(w http.ResponseWriter, r *http.Request) {
-    rows, err := db.Query("call getofficialdets()")
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+    aadharId := r.URL.Query().Get("aadharId")
+    fmt.Println(aadharId)
+    if aadharId == "" {
+        http.Error(w, "Aadhar ID is required", http.StatusBadRequest)
         return
     }
-    defer rows.Close()
+    row := db.QueryRow("SELECT aadhar_id, first_name, last_name, middle_name, gender, dob, age, phone_no, constituency_assigned, poll_booth_assigned, official_id, official_rank, higher_rank_id FROM official WHERE aadhar_id = ?", aadharId)
 
-    var results []map[string]string
+    var aadharID string
+    var firstName string
+    var lastName string
+    var middleName string
+    var gender string
+    var dob string
+    var age string
+    var phoneNumber string
+    var constituencyAssigned string
+    var pollBoothAssigned sql.NullString
+    var officialID string
+    var officialRank string
+    var higherRankID string
 
-    for rows.Next() {
-		var aadharID string
-		var firstName string
-		var lastName string
-		var middleName string
-		var gender string
-		var dob string
-		var age string
-		var phoneNumber string
-		var constituencyAssigned string
-		var pollBoothAssigned string
-		var officialID string
-		var officialRank string
-		var higherRankID string
-
-		if err := rows.Scan(&aadharID, &firstName, &lastName, &middleName, &gender, &dob, &age, &phoneNumber, &constituencyAssigned, &pollBoothAssigned, &officialID, &officialRank, &higherRankID); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		row := map[string]string{
-			"aadharID": aadharID,
-			"firstName": firstName,
-			"lastName": lastName,
-			"middleName": middleName,
-			"gender": gender,
-			"dob": dob,
-			"age": age,
-			"phoneNumber": phoneNumber,
-			"constituencyAssigned": constituencyAssigned,
-			"pollBoothAssigned": pollBoothAssigned,
-			"officialID": officialID,
-			"officialRank": officialRank,
-			"higherRankID": higherRankID,
-		}
-
-		results = append(results, row)
-
-	}
-
-    jsonData, err := json.Marshal(results)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+    if err := row.Scan(&aadharID, &firstName, &lastName, &middleName, &gender, &dob, &age, &phoneNumber, &constituencyAssigned, &pollBoothAssigned, &officialID, &officialRank, &higherRankID); err != nil {
+        errorResponse := map[string]string{"error": err.Error()}
+        jsonData, _ := json.Marshal(errorResponse)
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusInternalServerError)
+        w.Write(jsonData)
+        fmt.Println("here")
         return
     }
 
+    official := map[string]string{
+        "aadharId": aadharID,
+        "firstName": firstName,
+        "lastName": lastName,
+        "middleName": middleName,
+        "gender": gender,
+        "dob": dob,
+        "age": age,
+        "phoneNumber": phoneNumber,
+        "constituencyAssigned": constituencyAssigned,
+        "pollBoothAssigned": pollBoothAssigned.String,
+        "officialId": officialID,
+        "officialRank": officialRank,
+        "higherRankId": higherRankID,
+    }
+
+    jsonData, err := json.Marshal(official)
+    if err != nil {
+        errorResponse := map[string]string{"error": err.Error()}
+        jsonData, _ := json.Marshal(errorResponse)
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusInternalServerError)
+        w.Write(jsonData)
+        fmt.Println("here 2")
+        return
+    }
+    fmt.Println(jsonData)
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
     w.Write(jsonData)
+    fmt.Println("here 3")
 }
 
 func UpdateelectionDetails(db *sql.DB, eleiD string, eletyp string, dateofe string, seats string) error {
@@ -510,8 +504,8 @@ func handleDeleteElection(w http.ResponseWriter,r *http.Request){
 
 // Update function for Voter
 func UpdateVoterDetails(db *sql.DB, aadharID string, firstName string, lastName string, middleName string, gender string, dob string, state string, phoneNo string, voterID string) error {
-    query := "UPDATE voter SET aadhar_id = ?, first_name = ?, last_name = ?, middle_name = ?, gender = ?, dob = ?, state = ?, phone_no = ? WHERE voter_id = ?"
-    _, err := db.Exec(query, aadharID, firstName, lastName, middleName, gender, dob, state, phoneNo, voterID)
+    query := "UPDATE voter SET voter_id = ?, first_name = ?, last_name = ?, middle_name = ?, gender = ?, dob = ?, state = ?, phone_no = ? WHERE aadhar_id = ?"
+    _, err := db.Exec(query, voterID, firstName, lastName, middleName, gender, dob, state, phoneNo, aadharID)
     if err != nil {
         return err
     }
@@ -529,9 +523,9 @@ func UpdatePartyDetails(db *sql.DB, partyName string, partySymbol string, presid
 }
 
 // Update function for Candidate
-func UpdateCandidateDetails(db *sql.DB, aadharID string, firstName string, lastName string, middleName string, gender string, dob string, state string, phoneNo string) error {
-    query := "UPDATE candidate SET  first_name = ?, last_name = ?, middle_name = ?, gender = ?, dob = ?, state = ?, phone_no = ? WHERE aadhar_id = ?"
-    _, err := db.Exec(query, firstName, lastName, middleName, gender, dob, state, phoneNo, aadharID)
+func UpdateCandidateDetails(db *sql.DB, aadharID string, firstName string, lastName string, middleName string, gender string, dob string, phoneNo string, constituencyFighting string, candidateId string, partyRep string) error {
+    query := "UPDATE candidate SET first_name = ?, last_name = ?, middle_name = ?, gender = ?, dob = ?, phone_no = ?, cons_fight = ?, candidate_id = ?, party_rep = ? WHERE aadhar_id = ?"
+    _, err := db.Exec(query, firstName, lastName, middleName, gender, dob, phoneNo,constituencyFighting,candidateId,partyRep, aadharID)
     if err != nil {
         return err
     }
@@ -712,7 +706,7 @@ func handleUpdateCandidate(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    err = UpdateCandidateDetails(db, data.FirstName, data.LastName, data.MiddleName, data.Gender, data.Dob, data.State, data.PhoneNumber,data.AadharId)
+    err = UpdateCandidateDetails(db, data.AadharId, data.FirstName, data.LastName, data.MiddleName, data.Gender, data.Dob, data.PhoneNumber, data.ConstituencyName, data.CandidateId, data.PartyRep)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -740,10 +734,54 @@ func handleUpdateOfficial(w http.ResponseWriter, r *http.Request) {
     w.Write([]byte("Official updated successfully"))
 }
 
+func selectVoter(data FormData) (map[string]string, error) {
+    rows,err := db.Query("SELECT * FROM voter where aadhar_id = ?", data.AadharId)
+    if err != nil {
+        return nil, fmt.Errorf("error executing SELECT query: %v", err)
+    }
+    defer rows.Close()
 
+    var voter map[string]string
 
-func selectVoter(data FormData) error {
-	rows, err := db.Query("SELECT * FROM voter where aadhar_id = ?", data.AadharId)
+    for rows.Next() {
+        var aadharID string
+        var firstName string
+        var lastName string
+        var middleName string
+        var gender string
+        var dob string
+        var age string
+        var state string
+        var phoneNumber string
+        var constituencyName string
+        var pollBoothID string
+        var voterID string
+
+        if err := rows.Scan(&aadharID, &firstName, &lastName, &middleName, &gender, &dob, &age, &state,&phoneNumber, &constituencyName, &pollBoothID, &voterID); err != nil {
+            return nil, fmt.Errorf("error scanning row: %v", err)
+        }
+
+        voter = map[string]string{
+            "aadharId": aadharID,
+            "firstName": firstName,
+            "lastName": lastName,
+            "middleName": middleName,
+            "gender": gender,
+            "dob": dob,
+            "age": age,
+            "state": state,
+            "phoneNumber": phoneNumber,
+            "constituencyName": constituencyName,
+            "pollingBoothId": pollBoothID,
+            "voterId": voterID,
+        }
+    }
+
+    return voter, nil
+}
+
+func selectOfficials(data FormData) error {
+	rows, err := db.Query("SELECT * FROM official where aadhar_id = ?", data.AadharId)
 	if err != nil {
 		return fmt.Errorf("error executing SELECT query: %v", err)
 	}
@@ -758,11 +796,12 @@ func selectVoter(data FormData) error {
 		var dob string
 		var age string
 		var phoneNumber string
-		var state string
-		var constituencyName string
-		var pollingBoothId string
-		var voterId string
-		if err := rows.Scan(&aadharID, &firstName, &lastName, &middleName, &gender, &dob, &age, &state,&phoneNumber, &constituencyName, &pollingBoothId, &voterId); err != nil {
+		var constituencyAssigned string
+		var pollBoothAssigned string
+		var officialID string 
+		var officialRank string
+		var higherRankID string
+		if err := rows.Scan(&aadharID, &firstName, &lastName, &middleName, &gender, &dob, &age,&phoneNumber, &constituencyAssigned, &pollBoothAssigned, &officialID,&officialRank,&higherRankID); err != nil {
 			return fmt.Errorf("error scanning row: %v", err)
 		}
 
@@ -909,6 +948,8 @@ func handleRegistration(rw http.ResponseWriter, r *http.Request) {
 		err = insertUser(data, hashedPassword)
 	case "party":
 		err = insertUser(data, hashedPassword)
+    case "official":
+        err = insertUser(data, hashedPassword)
 	default:
 		err = fmt.Errorf("invalid role: %s", data.Role)
 	}
@@ -933,16 +974,40 @@ func handleSelectVoter(w http.ResponseWriter, r *http.Request) {
     }
 
     // Call selectVoter function
-    err = selectVoter(data)
+    voter, err := selectVoter(data)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
 
     // Send success response
+    w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
-    w.Write([]byte("Voter selected successfully"))
+    json.NewEncoder(w).Encode(voter)
 }
+
+func handleSelectOfficial(w http.ResponseWriter, r *http.Request) {
+    // Parse FormData from request body
+    var data FormData
+    err := json.NewDecoder(r.Body).Decode(&data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    // Call selectVoter function
+    err = selectOfficials(data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    // Send success response
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(map[string]string{"message": "Official selected successfully"})
+}
+
 
 func handleSelectCandidate(w http.ResponseWriter, r *http.Request) {
     // Parse FormData from request body
@@ -961,8 +1026,9 @@ func handleSelectCandidate(w http.ResponseWriter, r *http.Request) {
     }
 
     // Send success response
+    w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
-    w.Write([]byte("Candidate selected successfully"))
+    json.NewEncoder(w).Encode(map[string]string{"message": "Voter selected successfully"})
 }
 
 func handleSelectParty(w http.ResponseWriter, r *http.Request) {
@@ -980,8 +1046,9 @@ func handleSelectParty(w http.ResponseWriter, r *http.Request) {
     }
 
     // Send success response
+    w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
-    w.Write([]byte("Party selected successfully"))
+    json.NewEncoder(w).Encode(map[string]string{"message": "Voter selected successfully"})
 }
 
 func showTables() error {
@@ -1064,6 +1131,7 @@ func main() {
 	http.HandleFunc("/selectVoter", handleSelectVoter)
 	http.HandleFunc("/selectCandidate", handleSelectCandidate)
 	http.HandleFunc("/selectParty", handleSelectParty)
+	http.HandleFunc("/selectOfficials",handleSelectOfficial)
 	http.HandleFunc("/getConstDeets", getConstDeets)
 	http.HandleFunc("/getvoterinformation", getvoterinformation)
 	http.HandleFunc("/getcandidateinformation", getcandidateinformation)
